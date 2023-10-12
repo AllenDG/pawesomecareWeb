@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
+
+body {
+  margin: 0;
+  font-family: 'Lato', sans-serif;
+}
+
+.hero {
+  background: url() top center no-repeat;
+  background-size: cover;
+}
+
+.cta {
+  background: linear-gradient(rgba(2,2,2,.7),rgba(0,0,0,.7)),url(https://gardner-webb.edu/wp-content/uploads/2022/12/gwu-pre-health-veterinary-pathway.jpg) fixed center center;
+  background-size: cover;
+}
+
+
