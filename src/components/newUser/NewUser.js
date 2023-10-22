@@ -14,7 +14,7 @@ export default function NewUser() {
       <div className="userContainer">
         <div className="userShow">
           <div className="userShowTop">
-            <img src={profile} alt="" className="userShowImg"></img>
+            
             <div className="userShowTopTitle">
               <span className="userShowUsername">
                 Jedyne Ziah B. Claveria
@@ -86,17 +86,7 @@ export default function NewUser() {
 
               
             </div>
-            <div className="userUpdateRight">
-              <div className="userUpdateUpload">
-                <img className="userUpdateImg" src={profile} alt="profile Photo"/>
-
-               
-              </div>
-              <label htmlFor="file"><Publish className="userUpdateIcon"/></label>
-                <input type="file" id="file" style={{display:"none"}}/>
-
-              <button className="userUpdateBtn">Update</button>
-            </div>
+            
           </form>
         </div>
       </div>

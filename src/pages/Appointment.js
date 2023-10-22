@@ -9,19 +9,21 @@ import Notiflix from 'notiflix';
 const Appointment = (props) => {
   useDocTitle('Pawsome Care');
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [message, setMessage] = useState('');
-  const [selectedOption, setSelectedOption] = useState(null); // Store the selected option
+  const [AppointmentTime, setAppointmentTime] = useState('');
+  const [AppointmentDate, setAppointmentDate] = useState('');
+  const [FirstName, setFirstName] = useState('');
+  const [LastName, setLastName] = useState('');
+  const [Email, setEmail] = useState('');
+  const [PhoneNo, setPhone] = useState('');
+  const [Message, setMessage] = useState('');
+
+  const [isVeterinaryCare, setIsVeterinaryCare] = useState(false);
+  const [isPetGrooming, setIsPetGrooming] = useState(false);
+  const [isPetBoarding, setIsPetBoarding] = useState(false);
+  const [isPetSpa, setIsPetSpa] = useState(false);
+  const isPending = true; // isPending is always true
 
   const [errors, setErrors] = useState([]);
-
-  const handleChange = (e) => {
-    const value = e.target.value;
-    setSelectedOption(value); // Update the selected option
-  };
 
   const clearErrors = () => {
     setErrors([]);
@@ -35,45 +37,45 @@ const Appointment = (props) => {
     setMessage('');
   };
 
-  function sendEmail(e) {
+  const sendEmail = (e) => {
     e.preventDefault();
-    document.getElementById('submitBtn').disabled = true;
-    document.getElementById('submitBtn').innerHTML = 'Loading...';
-    let fData = new FormData();
-    fData.append('first_name', firstName);
-    fData.append('last_name', lastName);
-    fData.append('email', email);
-    fData.append('phone_number', phone);
-    fData.append('message', message);
-
-    axios({
-      method: 'post',
-      url: process.env.REACT_APP_DEMO_REQUEST_API,
-      data: fData,
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-      .then(function (response) {
-        document.getElementById('submitBtn').disabled = false;
-        document.getElementById('submitBtn').innerHTML = 'send message';
-        clearInput();
-        // handle success
-        Notiflix.Report.success('Success', response.data.message, 'Okay');
+  
+    // Assign the selected date and time to the corresponding variables
+    const selectedDateTime = selectedDate;
+    const selectedDateFormatted = selectedDateTime.toISOString();
+    const [date, time] = selectedDateFormatted.split('T');
+    const [year, month, day] = date.split('-');
+    const formattedDate = `${month}/${day}/${year}`;
+    const formattedTime = time.slice(0, 5);
+  
+    // Include boolean values for services based on checkbox state
+    const services = {
+      isVeterinaryCare,
+      isPetGrooming,
+      isPetBoarding,
+      isPetSpa,
+      isPending,
+    };
+  
+    // Include the formatted date and time in the data
+    axios
+      .post('http://localhost:5000/api/appointments', {
+        AppointmentTime: formattedTime,
+        AppointmentDate: formattedDate,
+        FirstName,
+        LastName,
+        Email,
+        PhoneNo,
+        Message,
+        ...services,
       })
-      .catch(function (error) {
-        document.getElementById('submitBtn').disabled = false;
-        document.getElementById('submitBtn').innerHTML = 'send message';
-        // handle error
-        const { response } = error;
-        if (response.status === 500) {
-          Notiflix.Report.failure('An error occurred', response.data.message, 'Okay');
-        }
-        if (response.data.errors !== null) {
-          setErrors(response.data.errors);
-        }
-      });
-  }
+      .then((result) => {
+        console.log('Appointment Result:', result);
+        window.location.reload()
+        // Handle the response as needed
+      })
+      .catch((err) => console.log(err));
+  };
 
   const [selectedDate, setSelectedDate] = useState(null); // State for selected date and time
 
@@ -104,53 +106,48 @@ const Appointment = (props) => {
                 <h1 className="font-bold text-center lg:text-left text-blue-900 uppercase text-4xl">Book Appointment</h1>
               </div>
               <div className="my-4">
-                <div className="radio-label">
+                <div className="checkbox-label">
                   <input
-                    id="radio-1"
-                    aria-describedby="radio-1"
-                    type="radio"
-                    name="appointmentType"
-                    value="veterinary_care"
-                    checked={selectedOption === 'veterinary_care'}
-                    onChange={handleChange}
+                    id="checkbox-veterinary"
+                    type="checkbox"
+                    name="isVeterinaryCare"
+                    checked={isVeterinaryCare}
+                    onChange={() => setIsVeterinaryCare(!isVeterinaryCare)}
                   />
-                  <label htmlFor="radio-1" className="ml-3 text-lg font-medium text-gray-900">Veterinary Care</label>
+                  <label htmlFor="checkbox-veterinary" className="ml-3 text-lg font-medium text-gray-900">Veterinary Care</label>
                 </div>
-                <div className="radio-label">
+                
+                <div className="checkbox-label">
                   <input
-                    id="radio-2"
-                    aria-describedby="radio-2"
-                    type="radio"
-                    name="appointmentType"
-                    value="pet_grooming"
-                    checked={selectedOption === 'pet_grooming'}
-                    onChange={handleChange}
+                    id="checkbox-pet-grooming"
+                    type="checkbox"
+                    name="isPetGrooming"
+                    checked={isPetGrooming}
+                    onChange={() => setIsPetGrooming(!isPetGrooming)}
                   />
-                  <label htmlFor="radio-2" className="ml-3 text-lg font-medium text-gray-900">Pet Grooming</label>
+                  <label htmlFor="checkbox-pet-grooming" className="ml-3 text-lg font-medium text-gray-900">Pet Grooming</label>
                 </div>
-                <div className="radio-label">
+
+                <div className="checkbox-label">
                   <input
-                    id="radio-3"
-                    aria-describedby="radio-3"
-                    type="radio"
-                    name="appointmentType"
-                    value="pet_boarding"
-                    checked={selectedOption === 'pet_boarding'}
-                    onChange={handleChange}
+                    id="checkbox-pet-boarding"
+                    type="checkbox"
+                    name="isPetBoarding"
+                    checked={isPetBoarding}
+                    onChange={() => setIsPetBoarding(!isPetBoarding)}
                   />
-                  <label htmlFor="radio-3" className="ml-3 text-lg font-medium text-gray-900">Pet Boarding</label>
+                  <label htmlFor="checkbox-pet-boarding" className="ml-3 text-lg font-medium text-gray-900">Pet Boarding</label>
                 </div>
-                <div className="radio-label">
+
+                <div className="checkbox-label">
                   <input
-                    id="radio-4"
-                    aria-describedby="radio-4"
-                    type="radio"
-                    name="appointmentType"
-                    value="spa_pampering"
-                    checked={selectedOption === 'spa_pampering'}
-                    onChange={handleChange}
+                    id="checkbox-pet-spa"
+                    type="checkbox"
+                    name="isPetSpa"
+                    checked={isPetSpa}
+                    onChange={() => setIsPetSpa(!isPetSpa)}
                   />
-                  <label htmlFor="radio-4" className="ml-3 text-lg font-medium text-gray-900">Pet Spa and Pampering</label>
+                  <label htmlFor="checkbox-pet-spa" className="ml-3 text-lg font-medium text-gray-900">Pet Spa and Pampering</label>
                 </div>
               </div>
               {errors && <p className="text-red-500 text-sm">{errors.products}</p>}
@@ -186,7 +183,7 @@ const Appointment = (props) => {
                     className="w-full bg-blue-100 text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
                     type="text"
                     placeholder="First Name*"
-                    value={firstName}
+                    value={FirstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     onKeyUp={clearErrors}
                   />
@@ -199,7 +196,7 @@ const Appointment = (props) => {
                     className="w-full bg-blue-100 text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
                     type="text"
                     placeholder="Last Name*"
-                    value={lastName}
+                    value={LastName}
                     onChange={(e) => setLastName(e.target.value)}
                     onKeyUp={clearErrors}
                   />
@@ -212,7 +209,7 @@ const Appointment = (props) => {
                     className="w-full bg-blue-100 text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
                     type="email"
                     placeholder="Email*"
-                    value={email}
+                    value={Email}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyUp={clearErrors}
                   />
@@ -225,7 +222,7 @@ const Appointment = (props) => {
                     className="w-full bg-blue-100 text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
                     type="number"
                     placeholder="Phone*"
-                    value={phone}
+                    value={PhoneNo}
                     onChange={(e) => setPhone(e.target.value)}
                     onKeyUp={clearErrors}
                   />
@@ -237,7 +234,7 @@ const Appointment = (props) => {
                   name="message"
                   placeholder="Message*"
                   className="w-full h-32 bg-blue-100 text-gray-900 mt-2 p-3 rounded-lg focus:outline-none focus:shadow-outline"
-                  value={message}
+                  value={Message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyUp={clearErrors}
                 ></textarea>
@@ -285,7 +282,7 @@ const Appointment = (props) => {
                   rel="noreferrer"
                   className="rounded-full flex justify-center bg-white h-8 text-blue-900  w-8 inline-block mx-1 text-center pt-1"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className="fill-current font-black hover:animate-pulse"><path d="M13.397 20.997v-8.196h2.765v-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className="fill-current font-black hover:animate-pulse"><path d="M13.397 20.997v-8.196h2.765v-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v 2.355H7.332v3.209h2.753v8.202h3.312z"></path></svg>
                 </a>
                 <a
                   href="https://www.linkedin.com/company/enlighteneering-inc-"
